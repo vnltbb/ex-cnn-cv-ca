@@ -1,0 +1,28 @@
+# 실험 설정
+experiment_id: resnet_colormap_v1
+backbone_name: ResNet50
+
+# 데이터셋 설정
+original_dataset_dir: /Volumes/PortableSSD/data
+base_output_dir: /Users/vnlt/PROJECT/ex-cnn-cv/data/dataset
+input_shape: [224, 224, 3]
+train_ratio, val_ratio, test_ratio: 0.7, 0.2, 0.1
+seed: 
+augmentations:
+  - brightness
+  - color_jitter
+  - colormap
+  - saturation
+
+# 학습 설정
+epochs: 50
+batch_size: 32
+optimizer: adam
+learning_rate: 0.0001
+patience: 7
+dropout_rate: 0.5
+
+# 결과 저장 설정 
+save_best_only: true
+model_save_dir:
+num_classes: 10
