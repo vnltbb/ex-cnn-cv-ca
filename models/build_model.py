@@ -19,12 +19,13 @@ def build_model(backbone_name, input_shape, num_classes, dropout_rate=0.5):
     input_tensor = Input(shape=input_shape)
     
     backbone = get_model(backbone_name, input_shape)
-    x = base_model(input_tensor, training=False)
+    x = backbone(input_tensor, training=False)
     x = GlobalAveragePooling2D()(x)
     x = Dense(1024, activation='relu')(x)
     if dropout_rate > 0:
         x = Dropout(dropout_rate)(x)
     outputs = Dense(num_classes, activation='softmax')(x)
     
-    model = Model(inputs=backbone.input, outputs=outputs, name=f"{backbone_name}_custom")
+    model = Model(inputs=input_tensor, outputs=outputs, name=f"{backbone_name}_custom")
+    
     return model

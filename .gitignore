@@ -787,5 +787,5 @@ events.out.tfevents.*
 *.npy
 
 # 데이터셋 폴더 
-data/
+dataset/
 split_dataset/
