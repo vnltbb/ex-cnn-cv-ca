@@ -62,4 +62,28 @@ def show_top_misclassified(y_true, y_pred, probs, class_names, generator, model_
         save_path = os.path.join(save_dir, f"misclassified_{i+1}.png")
         plt.savefig(save_path)
         plt.show()
-        
+
+def plot_metrics_text(metrics_dict, experiment_id=None, save_path=None):
+    """
+    experiment_id 및 주요 성능 지표를 텍스트로 시각화
+    metrics_dict: dict - accuracy, precision, recall, f1_score 포함
+    """
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.axis('off')
+
+    text_lines = []
+    if experiment_id:
+        text_lines.append(f"Experiment ID:\n{experiment_id}\n")
+
+    for key in ["accuracy", "precision", "recall", "f1_score"]:
+        val = metrics_dict.get(key, None)
+        if val is not None:
+            text_lines.append(f"{key.capitalize()}: {val:.4f}")
+
+    full_text = "\n".join(text_lines)
+    ax.text(0.05, 0.95, full_text, fontsize=12, verticalalignment='top')
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, bbox_inches='tight')
+    plt.show()
