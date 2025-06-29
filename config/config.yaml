@@ -1,5 +1,5 @@
 # 실험 설정
-experiment_id: resnet_colormap_v1
+experiment_id: EfficientNetB0_v1_test2
 backbone_name: EfficientNetB0 #ResNet50 MobileNetV2 DenseNet121 EfficientNetB0
 
 # 데이터셋 설정
@@ -20,9 +20,10 @@ augmentations:
 # 학습 설정
 epochs: 3
 batch_size: 5
-optimizer: adamw
+optimizer: adamw #adam, adamw
 learning_rate: 0.0001
-patience: 7
+weight_decay: 1e-5
+patience: 10
 dropout_rate: 0.5
 
 # 결과 저장 설정 

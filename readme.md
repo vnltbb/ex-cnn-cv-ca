@@ -10,6 +10,14 @@ model build
 - ResNet50, MobileNetV2, EfficientNetB0, DenseNet121
     - imagenet weights model : pre-trained
 - backbone > global average pooling 2D > dense(relu, dropout) > outputs dense(softmax)
+- data agumentation:
+    rotation_range 20
+    width_shift_range 0.1
+    height_shift_range 0.1
+    zoom_range 0.2
+    horizontal_flip
+    vertical_flip
+    - additional: Color agumentation(color_agu.py)
 
 optimizer
 - adamw

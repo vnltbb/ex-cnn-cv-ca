@@ -17,19 +17,41 @@ preprocess_map = {
     'DenseNet121': densenet_preprocess,
 }
 
-def show_images(gen):
+def undo_preprocessing(image, model_name):
+    """모델별 전처리 해제를 위한 함수"""
+    if model_name == 'ResNet50':
+        # ResNet: [-123.68, -116.779, -103.939] mean subtraction → add mean
+        image = image + [123.68, 116.779, 103.939]
+    elif model_name == 'EfficientNetB0':
+        # EfficientNet: [-1, 1] → 복원
+        image = (image + 1) * 127.5
+    elif model_name == 'MobileNetV2':
+        # MobileNetV2: [-1, 1] → 복원
+        image = (image + 1) * 127.5
+    elif model_name == 'DenseNet121':
+        # DenseNet: mean=[103.94, 116.78, 123.68] (BGR) → OpenCV 기반이므로 복원이 까다롭지만 일단 간단하게
+        image = image + [103.94, 116.78, 123.68]
+    else:
+        # 그 외 모델은 normalize된 [0,1] 범위라고 가정
+        image = image * 255.0
+    return np.clip(image, 0, 255).astype(np.uint8)
+
+
+def show_samples(gen, model_name='resnet', n_per_class=5):
+    """
+    클래스별로 n_per_class 장씩 균등하게 이미지를 시각화한다.
+    모델 전처리에 따라 복원해서 사람이 보기 좋게 표시한다.
+    """
     g_dict = gen.class_indices
     classes = list(g_dict.keys())
     images, labels = next(gen)
-    
+
     if isinstance(images[0], str):
-        print("❌ 이미지가 배열이 아니라 문자열(파일 경로)입니다.")
+        print("❌ 이미지가 배열이 아니라 경로(str)입니다.")
         print("예: ", images[0])
         return
-    else:
-        print("✅ 이미지 로딩 확인:", images[0].shape, images[0].dtype, images[0].min(), images[0].max())
 
-    n_per_class = 10
+    # 클래스별 인덱스 수집
     idx_per_class = {cls: [] for cls in range(len(classes))}
     for idx, label in enumerate(labels):
         class_idx = np.argmax(label)
@@ -38,17 +60,17 @@ def show_images(gen):
         if all(len(v) == n_per_class for v in idx_per_class.values()):
             break
 
-    total = n_per_class * len(classes)
-    plt.figure(figsize=(20, 2 * len(classes)))
+    plt.figure(figsize=(20, 2.5 * len(classes)))
     plot_idx = 1
     for class_idx, idxs in idx_per_class.items():
         for i in idxs:
             plt.subplot(len(classes), n_per_class, plot_idx)
-            image = images[i]
+            image = undo_preprocessing(images[i], model_name)
             plt.imshow(image)
             plt.title(classes[class_idx], color='blue', fontsize=12)
             plt.axis('off')
             plot_idx += 1
+    plt.tight_layout()
     plt.show()
 
 
@@ -74,10 +96,12 @@ def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_
     # train generator with augmentation
     train_datagen = ImageDataGenerator(
         preprocessing_function=custom_preprocessing,
-        rotation_range=30,
+        rotation_range=20,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        zoom_range=0.2,
         horizontal_flip=True,
         vertical_flip=True,
-        validation_split=0.0,
     )
     
     train_gen = train_datagen.flow_from_directory(
