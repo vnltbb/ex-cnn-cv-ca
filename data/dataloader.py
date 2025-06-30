@@ -17,62 +17,6 @@ preprocess_map = {
     'DenseNet121': densenet_preprocess,
 }
 
-def undo_preprocessing(image, model_name):
-    """모델별 전처리 해제를 위한 함수"""
-    if model_name == 'ResNet50':
-        # ResNet: [-123.68, -116.779, -103.939] mean subtraction → add mean
-        image = image + [123.68, 116.779, 103.939]
-    elif model_name == 'EfficientNetB0':
-        # EfficientNet: [-1, 1] → 복원
-        image = (image + 1) * 127.5
-    elif model_name == 'MobileNetV2':
-        # MobileNetV2: [-1, 1] → 복원
-        image = (image + 1) * 127.5
-    elif model_name == 'DenseNet121':
-        # DenseNet: mean=[103.94, 116.78, 123.68] (BGR) → OpenCV 기반이므로 복원이 까다롭지만 일단 간단하게
-        image = image + [103.94, 116.78, 123.68]
-    else:
-        # 그 외 모델은 normalize된 [0,1] 범위라고 가정
-        image = image * 255.0
-    return np.clip(image, 0, 255).astype(np.uint8)
-
-
-def show_samples(gen, model_name='resnet', n_per_class=5):
-    """
-    클래스별로 n_per_class 장씩 균등하게 이미지를 시각화한다.
-    모델 전처리에 따라 복원해서 사람이 보기 좋게 표시한다.
-    """
-    g_dict = gen.class_indices
-    classes = list(g_dict.keys())
-    images, labels = next(gen)
-
-    if isinstance(images[0], str):
-        print("❌ 이미지가 배열이 아니라 경로(str)입니다.")
-        print("예: ", images[0])
-        return
-
-    # 클래스별 인덱스 수집
-    idx_per_class = {cls: [] for cls in range(len(classes))}
-    for idx, label in enumerate(labels):
-        class_idx = np.argmax(label)
-        if len(idx_per_class[class_idx]) < n_per_class:
-            idx_per_class[class_idx].append(idx)
-        if all(len(v) == n_per_class for v in idx_per_class.values()):
-            break
-
-    plt.figure(figsize=(20, 2.5 * len(classes)))
-    plot_idx = 1
-    for class_idx, idxs in idx_per_class.items():
-        for i in idxs:
-            plt.subplot(len(classes), n_per_class, plot_idx)
-            image = undo_preprocessing(images[i], model_name)
-            plt.imshow(image)
-            plt.title(classes[class_idx], color='blue', fontsize=12)
-            plt.axis('off')
-            plot_idx += 1
-    plt.tight_layout()
-    plt.show()
-
 
 def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_dir=None, augmentations=None):
     if data_dir is None:
