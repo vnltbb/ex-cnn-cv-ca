@@ -58,15 +58,13 @@ def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_
 
     # validation generator
     val_datagen = ImageDataGenerator(
-        preprocessing_function=custom_preprocessing,
-        validation_split=0.2,
+        preprocessing_function=custom_preprocessing
     )
     val_gen = val_datagen.flow_from_directory(
         val_dir,
         target_size=input_shape[:2],
         batch_size=batch_size,
-        class_mode='categorical',
-        subset='validation',
+        class_mode='categorical'
     )
 
     # test generator (no augmentation)
