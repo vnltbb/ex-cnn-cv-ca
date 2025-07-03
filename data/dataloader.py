@@ -72,6 +72,9 @@ def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_
     val_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
     test_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
     
+    print(custom_preprocessing)
+    print(preprocess_func)
+    
     # generator 생성
     train_gen = train_datagen.flow_from_dataframe(
         dataframe=train_df,
