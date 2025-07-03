@@ -21,7 +21,7 @@ preprocess_map = {
 }
 
 
-def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_dir=None,train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, seed=42, augmentations=None):
+def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_dir=None,train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, seed=None, augmentations=None):
     if data_dir is None:
         raise ValueError("❌ data_dir 값을 지정해야 합니다.")
     if augmentations is None:
@@ -37,6 +37,106 @@ def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_
     # 이미지 경로 및 라벨 수집
     image_paths = []
     labels = []
+    
+    for cls in os.listdir(data_dir):
+        cls_path = os.path.join(data_dir, cls)
+        if not os.path.isdir(cls_path):
+            continue
+        image_files = glob.glob(os.path.join(cls_path, '*'))  # 모든 확장자 허용
+        image_paths.extend(image_files)
+        labels.extend([cls] * len(image_files))
+
+    df = pd.DataFrame({'filename': image_paths, 'class': labels})
+    
+    # 클래스별 stratified split
+    train_df, temp_df = train_test_split(df, stratify=df['class'], train_size=train_ratio, random_state=seed)
+    val_df, test_df = train_test_split(
+        temp_df,
+        stratify=temp_df['class'],
+        test_size=test_ratio / (val_ratio + test_ratio),
+        random_state=seed
+    )
+    
+    # generator setup
+    train_datagen = ImageDataGenerator(
+        preprocessing_function=custom_preprocessing,
+        rotation_range=20,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        vertical_flip=True,
+    )
+    
+    val_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
+    test_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
+    
+    print(custom_preprocessing)
+    print(preprocess_func)
+    
+    # generator 생성
+    train_gen = train_datagen.flow_from_dataframe(
+        dataframe=train_df,
+        x_col='filename',
+        y_col='class',
+        target_size=input_shape[:2],
+        batch_size=batch_size,
+        class_mode='categorical',
+        shuffle=True,
+        directory=None
+    )
+
+    val_gen = val_datagen.flow_from_dataframe(
+        dataframe=val_df,
+        x_col='filename',
+        y_col='class',
+        target_size=input_shape[:2],
+        batch_size=batch_size,
+        class_mode='categorical',
+        shuffle=False,
+        directory=None  
+    )
+
+    test_gen = test_datagen.flow_from_dataframe(
+        dataframe=test_df,
+        x_col='filename',
+        y_col='class',
+        target_size=input_shape[:2],
+        batch_size=batch_size,
+        class_mode='categorical',
+        shuffle=False,
+        directory=None
+    )
+
+    return train_gen, val_gen, test_gen
+
+def get_generators_non_seed(model_name, input_shape=(224, 224, 3), batch_size=None, data_dir=None,train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, seed=None, augmentations=None):
+    if data_dir is None:
+        raise ValueError("❌ data_dir 값을 지정해야 합니다.")
+    if augmentations is None:
+        augmentations = []
+
+    preprocess_func = preprocess_map[model_name]
+
+    def custom_preprocessing(img):
+        img = preprocess_func(img)
+        img = apply_color_aug(img, augmentations)
+        return img
+    
+    # 이미지 경로 및 라벨 수집
+    image_paths = []
+    labels = []
+    for class_name in class_dirs:
+        class_path = os.path.join(data_dir, class_name)
+        # 모든 이미지 확장자 포함
+        image_files = glob.glob(os.path.join(class_path, '*'))
+        image_paths.extend(image_files)
+        labels.extend([class_name] * len(image_files))
+
+    df = pd.DataFrame({
+        'filename': image_paths,
+        'class': labels
+    })
     
     for cls in os.listdir(data_dir):
         cls_path = os.path.join(data_dir, cls)
