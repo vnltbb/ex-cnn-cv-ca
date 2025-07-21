@@ -789,3 +789,5 @@ events.out.tfevents.*
 # 데이터셋 폴더 
 dataset/
 split_dataset/
+save_models/
+csv-results/
