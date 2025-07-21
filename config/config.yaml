@@ -9,7 +9,7 @@ input_shape: [224, 224, 3]
 train_ratio: 0.7 
 val_ratio: 0.2 
 test_ratio: 0.1
-seed: 42
+seed: 99
 augmentations:
   #- color_jitter:
       # brightness: 0.2
