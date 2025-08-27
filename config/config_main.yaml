@@ -1,0 +1,36 @@
+# 실험 설정
+experiment_id: ver_(variable)_(model_name)
+backbone_name:  #ResNet50 MobileNetV2 DenseNet121 EfficientNetB0
+
+# 경로 설정
+original_dataset_dir: 
+base_output_dir: 
+model_save_dir: 
+
+# 데이터셋 설정
+num_classes: 5
+input_shape: [224, 224, 3]
+train_ratio: 0.7 # verR: 0.7/0.8/0.9
+val_ratio: 0.2 
+test_ratio: 0.1 # verR: 0.2/0.1/0.05
+seed: 41 # verS: full/99
+
+
+# ✅ 교차 검증 설정 (추가)
+use_cross_validation: true # true로 변경하면 교차 검증 실행
+cross_validation_type: stratified_kfold # stratified_kfold, repeated_stratified_kfold
+n_splits: 5 # K-Fold의 K값
+n_repeats: 1 # Repeated K-Fold의 반복 횟수 (stratified_kfold의 경우 1로 설정)
+
+# 학습 설정
+epochs: 1 # verE: 5/10/15/20/25/30/60/70
+batch_size: 5 # verB: 5/10/15/20/25/30/40/50/60/70/80
+optimizer: adamw #adam, adamw
+learning_rate: 0.0001
+weight_decay: 1e-5
+patience: 10
+dropout_rate: 0.5
+
+# 결과 저장 설정 
+save_best_only: true
+num_classes: 5

@@ -11,7 +11,7 @@ from tensorflow.keras.applications.efficientnet import preprocess_input as effic
 from tensorflow.keras.applications.resnet50 import preprocess_input as resnet_preprocess
 from tensorflow.keras.applications.densenet import preprocess_input as densenet_preprocess
 from sklearn.model_selection import train_test_split
-from data.color_agu import apply_color_aug
+
 
 
 preprocess_map = {
@@ -30,10 +30,6 @@ def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_
 
     preprocess_func = preprocess_map[model_name]
 
-    def custom_preprocessing(img):
-        img = preprocess_func(img)
-        img = apply_color_aug(img, augmentations)
-        return img
     
     # 이미지 경로 및 라벨 수집
     image_paths = []
@@ -60,7 +56,7 @@ def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_
     
     # generator setup
     train_datagen = ImageDataGenerator(
-        preprocessing_function=custom_preprocessing,
+        preprocessing_function=preprocess_func,
         rotation_range=20,
         width_shift_range=0.1,
         height_shift_range=0.1,
@@ -72,7 +68,6 @@ def get_generators(model_name, input_shape=(224, 224, 3), batch_size=None, data_
     val_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
     test_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
     
-    print(custom_preprocessing)
     print(preprocess_func)
     
     # generator 생성
@@ -119,11 +114,6 @@ def get_generators_non_seed(model_name, input_shape=(224, 224, 3), batch_size=No
 
     preprocess_func = preprocess_map[model_name]
 
-    def custom_preprocessing(img):
-        img = preprocess_func(img)
-        img = apply_color_aug(img, augmentations)
-        return img
-    
     # 이미지 경로 및 라벨 수집
     image_paths = []
     labels = []
@@ -161,7 +151,7 @@ def get_generators_non_seed(model_name, input_shape=(224, 224, 3), batch_size=No
     
     # generator setup
     train_datagen = ImageDataGenerator(
-        preprocessing_function=custom_preprocessing,
+        preprocessing_function=preprocess_func,
         rotation_range=20,
         width_shift_range=0.1,
         height_shift_range=0.1,
@@ -173,7 +163,6 @@ def get_generators_non_seed(model_name, input_shape=(224, 224, 3), batch_size=No
     val_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
     test_datagen = ImageDataGenerator(preprocessing_function=preprocess_func)
     
-    print(custom_preprocessing)
     print(preprocess_func)
     
     # generator 생성

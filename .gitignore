@@ -791,3 +791,4 @@ dataset/
 split_dataset/
 save_models/
 csv-results/
+config/config_test.yaml
