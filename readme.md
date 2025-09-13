@@ -1,18 +1,19 @@
-## Experiment: CNN - Computer Vision 
+## Experiment: CNN 
 
 ### custom setting
 - pyton env: 3. 9
 - paste config.yaml and custom setting 
 - change load_config path in runner.ipynb 
 - if using window, 
-    1. change module code line in runner.ipynb
+    1. change module code line in runner_new.ipynb
+        ```bash
         !python -m pip install --upgrade pip
         !python -m pip install pyyaml pandas numpy matplotlib seaborn scikit-learn
         !python -m pip uninstall keras -y
         !python -m pip install "tensorflow>=2.16"
         !python -m pip install opencv-python  
-    2. change function name on load_config cell: load_config > load_config_win_env
-    3. write the path with '/'
+        ```
+    2. write the path with `/`
 
 ### model 
 model build
@@ -34,10 +35,11 @@ optimizer
 - dropout
 
 callback
-- early stopping
+- early stopping(X)
 - model checkpoint
 - learning schedular: reduce learning rate on plateau
 
 output layer
-- Dense layer
-- activation: softmax
+- Conv2D
+- GlobalAveragePooling2D
+- Dense layer(activation: softmax)

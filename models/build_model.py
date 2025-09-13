@@ -19,7 +19,11 @@ def build_model(backbone_name, input_shape, num_classes, dropout_rate=0.5):
     input_tensor = Input(shape=input_shape)
     
     backbone = get_model(backbone_name, input_shape)
+    # 백본을 동결(freeze)하는 것이 일반적입니다.
+    backbone.trainable = False
+    
     x = backbone(input_tensor, training=False)
+    x = Conv2D(filters=512, kernel_size=(1, 1), activation='relu', name='grad_cam_target')(x)
     x = GlobalAveragePooling2D()(x)
     x = Dense(1024, activation='relu')(x)
     if dropout_rate > 0:

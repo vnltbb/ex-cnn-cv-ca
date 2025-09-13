@@ -127,7 +127,6 @@ def plot_cross_val_metrics(results_df, experiment_id, save_path=None):
         
     plt.show()
 
-# utils/evaluation.py 파일에 아래 함수를 추가하세요.
 
 def plot_combined_history(histories, experiment_id, save_path=None):
     """
